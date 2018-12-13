@@ -1,0 +1,9 @@
+applications:
+- name: kinesis
+  buildpack: binary_buildpack
+  memory: 256MB
+  services:
+  - kinesis-ups
+  instances: 2
+  env:
+    UPS_NAME: kinesis-ups
