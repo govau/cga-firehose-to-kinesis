@@ -17,8 +17,8 @@ ln -s "${ORIG_PWD}/src" "${GOPATH}/src/github.com/govau/cga-firehose-to-kinesis"
 go install github.com/govau/cga-firehose-to-kinesis
 
 # Copy artefacts to output directory
-cp  "${ORIG_PWD}/manifest.yml" \
-    "${ORIG_PWD}/Procfile" \
+cp  "${ORIG_PWD}/src/manifest.yml" \
+    "${ORIG_PWD}/src/Procfile" \
     "${ORIG_PWD}/build"
 
 printf "\ndomain: $DOMAIN\n" >> ${ORIG_PWD}/build/manifest.yml

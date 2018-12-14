@@ -5,6 +5,7 @@ jobs:
   plan:
   - do:
     - get: src
+      trigger: true
     - task: build
       file: src/ci/build.yml
       params:
