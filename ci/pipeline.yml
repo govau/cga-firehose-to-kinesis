@@ -46,11 +46,19 @@ jobs:
       file: src/ci/build.yml
       params:
         DOMAIN: system.y.cld.gov.au
-    - put: y-cf
-      params:
-        manifest: build/manifest.yml
-        path: build
-        current_app_name: kinesis
+    - aggregate:
+      - put: y-cf-a
+        resource: y-cf
+        params:
+          manifest: build/manifest-a.yml
+          path: build
+          current_app_name: kinesis-a
+      - put: y-cf-b
+        resource: y-cf
+        params:
+          manifest: build/manifest-b.yml
+          path: build
+          current_app_name: kinesis-b
     on_success:
       put: slack
       params:
@@ -74,11 +82,19 @@ jobs:
       file: src/ci/build.yml
       params:
         DOMAIN: system.b.cld.gov.au
-    - put: b-cf
-      params:
-        manifest: build/manifest.yml
-        path: build
-        current_app_name: kinesis
+    - aggregate:
+      - put: b-cf-a
+        resource: b-cf
+        params:
+          manifest: build/manifest-a.yml
+          path: build
+          current_app_name: kinesis-a
+      - put: b-cf-b
+        resource: b-cf
+        params:
+          manifest: build/manifest-b.yml
+          path: build
+          current_app_name: kinesis-b
     on_success:
       put: slack
       params:
