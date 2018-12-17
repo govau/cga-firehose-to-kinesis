@@ -11,6 +11,7 @@ import (
 	"os"
 	"os/signal"
 	"strconv"
+	"syscall"
 	"time"
 
 	"github.com/cloudfoundry/noaa/consumer"
@@ -170,7 +171,7 @@ func (c *config) Run() error {
 	logConsumer.RefreshTokenFrom(c)
 
 	sigChan := make(chan os.Signal, 1)
-	signal.Notify(sigChan, os.Interrupt)
+	signal.Notify(sigChan, syscall.SIGTERM, syscall.SIGINT)
 	go func() {
 		<-sigChan
 		log.Println("got signal, closing consumer...")
