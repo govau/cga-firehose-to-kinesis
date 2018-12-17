@@ -31,7 +31,8 @@ type config struct {
 	CFClientSecret   string
 	CFSubscriptionID string
 	CFPort           string
-	CFInstanceID     string
+
+	MetricInstance string
 
 	AWSStreamName   string
 	AWSRegion       string
@@ -97,16 +98,16 @@ func (c *config) RefreshAuthToken() (string, error) {
 var (
 	bufferSize = prometheus.NewGaugeVec(prometheus.GaugeOpts{
 		Name: "firehose_to_kinesis_buffer_size",
-	}, []string{"instance"})
+	}, []string{"system"})
 	errorCount = prometheus.NewCounterVec(prometheus.CounterOpts{
 		Name: "firehose_to_kinesis_errors_count",
-	}, []string{"instance"})
+	}, []string{"system"})
 	successCount = prometheus.NewCounterVec(prometheus.CounterOpts{
 		Name: "firehose_to_kinesis_sent_count",
-	}, []string{"instance"})
+	}, []string{"system"})
 	droppedCount = prometheus.NewCounterVec(prometheus.CounterOpts{
 		Name: "firehose_to_kinesis_dropped_count",
-	}, []string{"instance"})
+	}, []string{"system"})
 )
 
 func init() {
@@ -117,10 +118,10 @@ func init() {
 }
 
 func (c *config) Receive(sb batchproducer.StatsBatch) {
-	errorCount.WithLabelValues(c.CFInstanceID).Add(float64(sb.KinesisErrorsSinceLastStat))
-	successCount.WithLabelValues(c.CFInstanceID).Add(float64(sb.RecordsSentSuccessfullySinceLastStat))
-	droppedCount.WithLabelValues(c.CFInstanceID).Add(float64(sb.RecordsDroppedSinceLastStat))
-	bufferSize.WithLabelValues(c.CFInstanceID).Set(float64(sb.BufferSize))
+	errorCount.WithLabelValues(c.MetricInstance).Add(float64(sb.KinesisErrorsSinceLastStat))
+	successCount.WithLabelValues(c.MetricInstance).Add(float64(sb.RecordsSentSuccessfullySinceLastStat))
+	droppedCount.WithLabelValues(c.MetricInstance).Add(float64(sb.RecordsDroppedSinceLastStat))
+	bufferSize.WithLabelValues(c.MetricInstance).Set(float64(sb.BufferSize))
 }
 
 func (c *config) Printf(s string, v ...interface{}) {
@@ -224,7 +225,8 @@ func main() {
 		CFClientSecret:   e.MustString("CF_CLIENT_SECRET"),
 		CFSubscriptionID: e.MustString("CF_SUBSCRIPTION_ID"),
 		CFPort:           e.String("PORT", "8080"),
-		CFInstanceID:     e.String("CF_INSTANCE_INDEX", "0"), // for prom metrics
+
+		MetricInstance: e.String("SYSTEM", ""), // for prom metrics
 
 		AWSStreamName:   e.MustString("AWS_KINESIS_DATA_STREAM"),
 		AWSRegion:       e.MustString("AWS_REGION"),

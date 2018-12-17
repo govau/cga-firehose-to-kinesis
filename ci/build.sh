@@ -33,6 +33,7 @@ applications:
   instances: 1
   env:
     UPS_NAME: kinesis-ups
+    SYSTEM: ${DOMAIN}
   domain: ${DOMAIN}
 EOF
 done
