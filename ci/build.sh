@@ -17,11 +17,25 @@ ln -s "${ORIG_PWD}/src" "${GOPATH}/src/github.com/govau/cga-firehose-to-kinesis"
 go install github.com/govau/cga-firehose-to-kinesis
 
 # Copy artefacts to output directory
-cp  "${ORIG_PWD}/src/manifest.yml" \
-    "${ORIG_PWD}/src/Procfile" \
-    "${ORIG_PWD}/build"
+cp "${ORIG_PWD}/src/Procfile" \
+   "${ORIG_PWD}/build"
 
-printf "\ndomain: $DOMAIN\n" >> ${ORIG_PWD}/build/manifest.yml
+for ENV in a b;
+do
+    cat <<EOF > ${ORIG_PWD}/build/manifest-${ENV}.yml
+applications:
+- name: kinesis-${ENV}
+  buildpack: binary_buildpack
+  memory: 64MB
+  disk_quota: 64MB
+  services:
+  - kinesis-ups
+  instances: 1
+  env:
+    UPS_NAME: kinesis-ups
+  domain: ${DOMAIN}
+EOF
+done
 
 cp "${GOPATH}/bin/cga-firehose-to-kinesis" \
    "${ORIG_PWD}/build/cga-firehose-to-kinesis"
