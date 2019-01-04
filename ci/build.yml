@@ -16,7 +16,6 @@ outputs: []
 
 params:
   ENV:
-  IMAGE:
   JUMPBOX_SSH_KEY:
 
 run:
