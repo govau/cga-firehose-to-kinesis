@@ -31,6 +31,7 @@ jobs:
     - get: img
       passed: [kinesis-build-container-image]
       params: {skip_download: true}
+    - get: ops.git
     - task: build
       file: src/ci/build.yml
       params:
@@ -60,6 +61,14 @@ resources:
     repository: ((aws_repository))
     aws_access_key_id: ((aws_access_key_id))
     aws_secret_access_key: ((aws_secret_access_key))
+- name: ops.git
+  type: git
+  source:
+    branch: master
+    paths:
+    - terraform/sshca-ca.pub
+    private_key: ((ops-git-deploy-key.private_key))
+    uri: git@github.com:AusDTO/ops.git
 - name: slack
   type: slack-notification
   source:
@@ -69,11 +78,3 @@ resource_types:
   type: docker-image
   source:
     repository: cfcommunity/slack-notification-resource
-- name: ops.git
-  type: git
-  source:
-    branch: master
-    paths:
-    - terraform/sshca-ca.pub
-    private_key: ((ops-git-deploy-key.private_key))
-    uri: git@github.com:AusDTO/ops.git
