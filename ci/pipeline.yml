@@ -118,14 +118,14 @@ resources:
     uri: https://github.com/govau/cga-firehose-to-kinesis
     branch: master
     ignore_paths:
-    - ci/**/*
+    - ci/**
 - name: ci
   type: git
   source:
     uri: https://github.com/govau/cga-firehose-to-kinesis
     branch: master
     paths:
-    - ci/**/*
+    - ci/**
 - name: img
   type: docker-image
   source:
