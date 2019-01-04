@@ -36,7 +36,7 @@ cat deployment.yaml
 
 mkdir -p $HOME/.ssh
 cat <<EOF >> $HOME/.ssh/known_hosts
-@cert-authority *.cld.gov.au $(cat ops.git/terraform/sshca-ca.pub)
+@cert-authority *.cld.gov.au $(cat ca/terraform/sshca-ca.pub)
 EOF
 echo "${JUMPBOX_SSH_KEY}" > $HOME/.ssh/key.pem
 chmod 600 $HOME/.ssh/key.pem
