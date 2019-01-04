@@ -9,6 +9,7 @@ jobs:
     - put: img
       params:
         build: src
+        tag_file: src/.git/ref
       get_params: {skip_download: true}
     on_success:
       put: slack

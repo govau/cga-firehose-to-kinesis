@@ -4,8 +4,7 @@ set -eu
 set -o pipefail
 
 REPO=$(cat img/repository)
-DIGEST=$(cat img/digest)
-RAW_DIGEST=${DIGEST:7:64}
+TAG=$(cat img/tag)
 
 cat <<EOF > deployment.yaml
 apiVersion: apps/v1
@@ -24,7 +23,7 @@ spec:
     spec:
       containers:
       - name: ${ENV}cld-firehose-to-kinesis
-        image: ${REPO}:${RAW_DIGEST}
+        image: ${REPO}:${TAG}
         resources: {limits: {memory: "64Mi", cpu: "100m"}}
         envFrom:
         - secretRef: {name: ${ENV}cld-firehose-to-kinesis}
