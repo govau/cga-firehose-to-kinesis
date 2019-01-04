@@ -3,7 +3,7 @@
 set -eu
 set -o pipefail
 
-# Tag is not alway populated correctly by the docker-image resource (ie it defaults to latest)
+# Tag is not always populated correctly by the docker-image resource (ie it defaults to latest)
 # so use the actual source for tag
 TAG=$(cat src/.git/ref)
 REPO=$(cat img/repository)
