@@ -30,7 +30,7 @@ jobs:
     - get: src
       passed: [kinesis-build-container-image]
     - get: ci
-      passed: [kinesis-build-container-image]
+      trigger: true
     - get: img
       passed: [kinesis-build-container-image]
       params: {skip_download: true}
@@ -87,11 +87,11 @@ jobs:
   plan:
   - do:
     - get: src
-      passed: [kinesis-deploy-d]
+      passed: [kinesis-deploy-y]
     - get: ci
-      passed: [kinesis-deploy-d]
+      passed: [kinesis-deploy-y]
     - get: img
-      passed: [kinesis-deploy-d]
+      passed: [kinesis-deploy-y]
       params: {skip_download: true}
     - get: ca
     - task: build
