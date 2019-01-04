@@ -1,45 +1,41 @@
 #!/bin/bash
 
 set -eu
-set -x
 set -o pipefail
 
-ORIG_PWD="${PWD}"
+REPO=$(cat img/repository)
+DIGEST=$(cat img/digest)
 
-# Create our own GOPATH
-export GOPATH="${ORIG_PWD}/go"
-
-# Symlink our source dir from inside of our own GOPATH
-mkdir -p "${GOPATH}/src/github.com/govau"
-ln -s "${ORIG_PWD}/src" "${GOPATH}/src/github.com/govau/cga-firehose-to-kinesis"
-
-# Build it
-go install github.com/govau/cga-firehose-to-kinesis
-
-# Copy artefacts to output directory
-cp "${ORIG_PWD}/src/Procfile" \
-   "${ORIG_PWD}/build"
-
-for ENV in a b;
-do
-    cat <<EOF > ${ORIG_PWD}/build/manifest-${ENV}.yml
-applications:
-- name: kinesis-${ENV}
-  buildpack: binary_buildpack
-  memory: 64MB
-  disk_quota: 64MB
-  services:
-  - kinesis-ups
-  instances: 1
-  env:
-    UPS_NAME: kinesis-ups
-    SYSTEM: ${DOMAIN}
-  domain: ${DOMAIN}
+cat <<EOF > deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ${ENV}cld-firehose-to-kinesis
+spec:
+  selector:
+    matchLabels:
+      app: ${ENV}cld-firehose-to-kinesis
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: ${ENV}cld-firehose-to-kinesis
+    spec:
+      containers:
+      - name: ${ENV}cld-firehose-to-kinesis
+        image: ${REPO}:${DIGEST}
+        resources: {limits: {memory: "64Mi", cpu: "100m"}}
+        envFrom:
+        - secretRef: {name: ${ENV}cld-firehose-to-kinesis}
+        - secretRef: {name: shared-firehose-to-kinesis}
 EOF
-done
 
-cp "${GOPATH}/bin/cga-firehose-to-kinesis" \
-   "${ORIG_PWD}/build/cga-firehose-to-kinesis"
+cat deployment.yaml
 
-echo "Files in build:"
-ls -l "${ORIG_PWD}/build"
+mkdir -p $HOME/.ssh
+cat <<EOF >> $HOME/.ssh/known_hosts
+@cert-authority *.cld.gov.au $(cat ops.git/terraform/sshca-ca.pub)
+EOF
+echo "${JUMPBOX_SSH_KEY}" > $HOME/.ssh/key.pem
+chmod 600 $HOME/.ssh/key.pem
+ssh -i $HOME/.ssh/key.pem -p 32213 ec2-user@bosh-jumpbox.${ENV}.cld.gov.au kubectl apply -f deployment.yaml

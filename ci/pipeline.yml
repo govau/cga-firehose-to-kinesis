@@ -1,28 +1,15 @@
 ---
 jobs:
-- name: kinesis-d
+- name: kinesis-build-container-image
   serial: true
   plan:
   - do:
     - get: src
       trigger: true
-    - task: build
-      file: src/ci/build.yml
+    - put: img
       params:
-        DOMAIN: system.d.cld.gov.au
-    - aggregate:
-      - put: d-cf-a
-        resource: d-cf
-        params:
-          manifest: build/manifest-a.yml
-          path: build
-          current_app_name: kinesis-a
-      - put: d-cf-b
-        resource: d-cf
-        params:
-          manifest: build/manifest-b.yml
-          path: build
-          current_app_name: kinesis-b
+        build: src
+      get_params: {skip_download: true}
     on_success:
       put: slack
       params:
@@ -35,66 +22,20 @@ jobs:
         text: |
           :x: $BUILD_JOB_NAME FAILED
           <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|View build details>
-- name: kinesis-y
+- name: kinesis-deploy-d
   serial: true
   plan:
   - do:
     - get: src
-      passed:
-      - kinesis-d
+      passed: [kinesis-build-container-image]
+    - get: img
+      passed: [kinesis-build-container-image]
+      params: {skip_download: true}
     - task: build
       file: src/ci/build.yml
       params:
-        DOMAIN: system.y.cld.gov.au
-    - aggregate:
-      - put: y-cf-a
-        resource: y-cf
-        params:
-          manifest: build/manifest-a.yml
-          path: build
-          current_app_name: kinesis-a
-      - put: y-cf-b
-        resource: y-cf
-        params:
-          manifest: build/manifest-b.yml
-          path: build
-          current_app_name: kinesis-b
-    on_success:
-      put: slack
-      params:
-        text: |
-          :white_check_mark: $BUILD_JOB_NAME SUCCESS
-          <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|View build details>
-    on_failure:
-      put: slack
-      params:
-        text: |
-          :x: $BUILD_JOB_NAME FAILED
-          <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|View build details>
-- name: kinesis-b
-  serial: true
-  plan:
-  - do:
-    - get: src
-      passed:
-      - kinesis-y
-    - task: build
-      file: src/ci/build.yml
-      params:
-        DOMAIN: system.b.cld.gov.au
-    - aggregate:
-      - put: b-cf-a
-        resource: b-cf
-        params:
-          manifest: build/manifest-a.yml
-          path: build
-          current_app_name: kinesis-a
-      - put: b-cf-b
-        resource: b-cf
-        params:
-          manifest: build/manifest-b.yml
-          path: build
-          current_app_name: kinesis-b
+        ENV: d
+        JUMPBOX_SSH_KEY: ((jumpbox-key.private_key))
     on_success:
       put: slack
       params:
@@ -113,30 +54,12 @@ resources:
   source:
     uri: https://github.com/govau/cga-firehose-to-kinesis
     branch: master
-- name: d-cf
-  type: cf
+- name: img
+  type: docker-image
   source:
-    api: https://api.system.d.cld.gov.au
-    username: ci-system-kinesis
-    password: ((d-password))
-    organization: system
-    space: kinesis
-- name: y-cf
-  type: cf
-  source:
-    api: https://api.system.y.cld.gov.au
-    username: ci-system-kinesis
-    password: ((y-password))
-    organization: system
-    space: kinesis
-- name: b-cf
-  type: cf
-  source:
-    api: https://api.system.b.cld.gov.au
-    username: ci-system-kinesis
-    password: ((b-password))
-    organization: system
-    space: kinesis
+    repository: ((aws_repository))
+    aws_access_key_id: ((aws_access_key_id))
+    aws_secret_access_key: ((aws_secret_access_key))
 - name: slack
   type: slack-notification
   source:
@@ -146,3 +69,11 @@ resource_types:
   type: docker-image
   source:
     repository: cfcommunity/slack-notification-resource
+- name: ops.git
+  type: git
+  source:
+    branch: master
+    paths:
+    - terraform/sshca-ca.pub
+    private_key: ((ops-git-deploy-key.private_key))
+    uri: git@github.com:AusDTO/ops.git

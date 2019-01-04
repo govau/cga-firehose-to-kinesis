@@ -9,12 +9,15 @@ image_resource:
 
 inputs:
 - name: src
+- name: ops.git
+- name: img
 
-outputs:
-- name: build
+outputs: []
 
 params:
-  DOMAIN:
+  ENV:
+  IMAGE:
+  JUMPBOX_SSH_KEY:
 
 run:
   path: src/ci/build.sh
