@@ -5,6 +5,7 @@ set -o pipefail
 
 REPO=$(cat img/repository)
 DIGEST=$(cat img/digest)
+RAW_DIGEST=${DIGEST:7:64}
 
 cat <<EOF > deployment.yaml
 apiVersion: apps/v1
@@ -23,7 +24,7 @@ spec:
     spec:
       containers:
       - name: ${ENV}cld-firehose-to-kinesis
-        image: ${REPO}:${DIGEST}
+        image: ${REPO}:${RAW_DIGEST}
         resources: {limits: {memory: "64Mi", cpu: "100m"}}
         envFrom:
         - secretRef: {name: ${ENV}cld-firehose-to-kinesis}
@@ -38,4 +39,4 @@ cat <<EOF >> $HOME/.ssh/known_hosts
 EOF
 echo "${JUMPBOX_SSH_KEY}" > $HOME/.ssh/key.pem
 chmod 600 $HOME/.ssh/key.pem
-ssh -i $HOME/.ssh/key.pem -p 32213 ec2-user@bosh-jumpbox.l.cld.gov.au kubectl apply --record -f deployment.yaml
+ssh -i $HOME/.ssh/key.pem -p 32213 ec2-user@bosh-jumpbox.l.cld.gov.au kubectl apply --record -f - < deployment.yaml
