@@ -31,6 +31,7 @@ jobs:
     - get: img
       passed: [kinesis-build-container-image]
       params: {skip_download: true}
+      trigger: true
     - get: ops.git
     - task: build
       file: src/ci/build.yml

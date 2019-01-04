@@ -38,4 +38,4 @@ cat <<EOF >> $HOME/.ssh/known_hosts
 EOF
 echo "${JUMPBOX_SSH_KEY}" > $HOME/.ssh/key.pem
 chmod 600 $HOME/.ssh/key.pem
-ssh -i $HOME/.ssh/key.pem -p 32213 ec2-user@bosh-jumpbox.${ENV}.cld.gov.au kubectl apply -f deployment.yaml
+ssh -i $HOME/.ssh/key.pem -p 32213 ec2-user@bosh-jumpbox.l.cld.gov.au kubectl apply --record -f deployment.yaml
