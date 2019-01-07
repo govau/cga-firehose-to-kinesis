@@ -30,6 +30,12 @@ spec:
         envFrom:
         - secretRef: {name: ${ENV}cld-firehose-to-kinesis}
         - secretRef: {name: shared-firehose-to-kinesis}
+        env:
+        - name: SYSTEM
+          value: ${ENV}.cld.gov.au
+        ports:
+        - name: http
+          containerPort: 8080 # /metrics
 EOF
 
 cat deployment.yaml
