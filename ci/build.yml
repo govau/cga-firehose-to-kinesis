@@ -10,16 +10,13 @@ image_resource:
 inputs:
 - name: src
 - name: ci
-- name: ca
 - name: img
 
 outputs: []
 
 params:
   ENV:
-  JUMPBOX_SSH_KEY:
-  JUMPBOX_SSH_PORT:
-  JUMPBOX_SSH_L_HOST:
+  KUBECONFIG:
 
 run:
   path: ci/ci/build.sh

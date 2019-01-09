@@ -40,11 +40,8 @@ EOF
 
 cat deployment.yaml
 
-mkdir -p $HOME/.ssh
-cat <<EOF >> $HOME/.ssh/known_hosts
-@cert-authority *.cld.gov.au $(cat ca/terraform/sshca-ca.pub)
-EOF
-echo "${JUMPBOX_SSH_KEY}" > $HOME/.ssh/key.pem
-chmod 600 $HOME/.ssh/key.pem
-ssh -i $HOME/.ssh/key.pem -p "${JUMPBOX_SSH_PORT}" ec2-user@${JUMPBOX_SSH_L_HOST} kubectl apply --record -f - < deployment.yaml
-ssh -i $HOME/.ssh/key.pem -p "${JUMPBOX_SSH_PORT}" ec2-user@${JUMPBOX_SSH_L_HOST} kubectl rollout status deployment.apps/${ENV}cld-firehose-to-kinesis
+echo $KUBECONFIG > k
+export KUBECONFIG=k
+
+kubectl apply --record -f - < deployment.yaml
+kubectl rollout status deployment.apps/${ENV}cld-firehose-to-kinesis
