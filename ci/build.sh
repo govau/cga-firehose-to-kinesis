@@ -22,6 +22,7 @@ spec:
     metadata:
       labels:
         app: ${ENV}cld-firehose-to-kinesis
+        metrics: cf-firehose-to-kinesis
     spec:
       containers:
       - name: ${ENV}cld-firehose-to-kinesis
