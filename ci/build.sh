@@ -22,7 +22,6 @@ spec:
     metadata:
       labels:
         app: ${ENV}cld-firehose-to-kinesis
-        metrics: cf-firehose-to-kinesis
     spec:
       containers:
       - name: ${ENV}cld-firehose-to-kinesis
@@ -37,6 +36,19 @@ spec:
         ports:
         - name: http
           containerPort: 8080 # /metrics
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: ${ENV}cld-firehose-to-kinesis
+  labels:
+    monitor: me
+spec:
+  selector:
+    app: ${ENV}cld-firehose-to-kinesis
+  ports:
+  - name: web
+    port: 8080
 EOF
 
 cat deployment.yaml

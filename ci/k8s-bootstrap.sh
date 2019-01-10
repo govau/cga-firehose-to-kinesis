@@ -36,6 +36,20 @@ subjects:
 - name: "${ci_user}"
   namespace: "${NAMESPACE}"
   kind: ServiceAccount
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: "${NAMESPACE}"
+  namespace: "${NAMESPACE}"
+  labels:
+    release: prometheus-operator
+spec:
+  selector:
+    matchLabels:
+      monitor: me
+  endpoints:
+  - port: web
 EOF
 )
 
