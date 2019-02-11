@@ -18,10 +18,10 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
-	"github.com/sendgridlabs/go-kinesis"
+	kinesis "github.com/sendgridlabs/go-kinesis"
 	"github.com/sendgridlabs/go-kinesis/batchproducer"
 
-	"github.com/cloudfoundry-community/go-cfenv"
+	cfenv "github.com/cloudfoundry-community/go-cfenv"
 	"github.com/govau/cf-common/env"
 )
 
@@ -195,6 +195,9 @@ func (c *config) Run() error {
 
 	nextPart := 0
 	for evt := range evts {
+		if c.MetricInstance != "" {
+			evt.Origin = &c.MetricInstance
+		}
 		eBytes, err := evt.Marshal()
 		if err != nil {
 			return err
@@ -226,7 +229,7 @@ func main() {
 		CFSubscriptionID: e.MustString("CF_SUBSCRIPTION_ID"),
 		CFPort:           e.String("PORT", "8080"),
 
-		MetricInstance: e.String("SYSTEM", ""), // for prom metrics
+		MetricInstance: e.String("SYSTEM", ""), // for prom metrics, and also, if set, overrides origin in logs
 
 		AWSStreamName:   e.MustString("AWS_KINESIS_DATA_STREAM"),
 		AWSRegion:       e.MustString("AWS_REGION"),
