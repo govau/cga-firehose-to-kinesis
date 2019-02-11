@@ -126,9 +126,9 @@ resources:
 - name: img
   type: docker-image
   source:
-    repository: ((aws_repository))
-    aws_access_key_id: ((aws_access_key_id))
-    aws_secret_access_key: ((aws_secret_access_key))
+    repository: ((aws-repository))
+    aws_access_key_id: ((aws-access-key-id))
+    aws_secret_access_key: ((aws-secret-access-key))
 - name: slack
   type: slack-notification
   source:
